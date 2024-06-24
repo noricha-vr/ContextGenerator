@@ -11,7 +11,7 @@ from main import generate_summary
 
 def main():
     window = tk.Tk()
-    window.title("Project Summary Generator")
+    window.title("Context Generator")
     window.geometry("820x450")
 
     preset_manager = PresetManager()

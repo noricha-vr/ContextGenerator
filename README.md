@@ -1,8 +1,8 @@
-# Project Summary Generator
+# Context Generator
 
-Project Summary Generator は、指定されたディレクトリ内のファイルをマークダウン形式で要約するPythonアプリケーションです。プロジェクトの概要を1つのファイルにまとめ、生成AIに質問するのに便利です。
+Context Generator は、指定されたディレクトリ内のファイルをマークダウン形式で要約するPythonアプリケーションです。プロジェクトの概要を1つのファイルにまとめ、生成AIに質問するのに便利です。
 
-![Project Summary Generator Screenshot](image/screenshot.png)
+![Context Generator Screenshot](image/screenshot.png)
 
 ## 機能
 
@@ -36,13 +36,13 @@ Project Summary Generator は、指定されたディレクトリ内のファイ
 1. 以下のコマンドを実行して、GitHubからこのリポジトリをクローンします：
 
 ```
-git clone https://github.com/noricha-vr/ProjectSummaryGenerator.git
+git clone https://github.com/noricha-vr/ContextGenerator.git
 ```
 
 2. クローンしたディレクトリに移動します：
 
 ```
-cd ProjectSummaryGenerator
+cd ContextGenerator
 ```
 
 3. `gui.py` を実行してGUIを起動します：
