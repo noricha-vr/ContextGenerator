@@ -42,6 +42,7 @@ def main():
     root_dir = tk.StringVar()
     exclude_dirs = tk.StringVar(value=", ".join(EXCLUDE_DIRS))
     output_dir = tk.StringVar(value=DEFAULT_OUTPUT_DIR)
+    output_format = tk.StringVar(value=".md")  # デフォルト値を .md に設定
     target_files = tk.StringVar(value=", ".join(DEFAULT_TARGET_FILES))
 
     extension_vars = {ext: tk.BooleanVar(value=ext in [".md", ".py"]) for ext in SUPPORTED_EXTENSIONS}
@@ -65,6 +66,12 @@ def main():
 
     ttk.Label(window, text="対象ファイル (カンマ区切り):").grid(row=4, column=0, sticky=tk.W, padx=10, pady=5)
     ttk.Entry(window, textvariable=target_files, width=50).grid(row=4, column=1, padx=10, pady=5)
+    # ファイル形式選択のラジオボタンを追加
+    ttk.Label(window, text="出力ファイル形式:").grid(row=5, column=0, sticky=tk.W, padx=10, pady=5)
+    format_frame = ttk.Frame(window)
+    format_frame.grid(row=5, column=1, sticky=tk.W, padx=10, pady=5)
+    ttk.Radiobutton(format_frame, text=".md", variable=output_format, value=".md").pack(side=tk.LEFT, padx=5)
+    ttk.Radiobutton(format_frame, text=".txt", variable=output_format, value=".txt").pack(side=tk.LEFT, padx=5)
 
     def open_output_directory(path):
         if os.path.exists(path):
@@ -81,14 +88,15 @@ def main():
             return
 
         selected_extensions = [ext for ext, var in extension_vars.items() if var.get()]
-        output_filename = os.path.basename(root_dir.get()) + ".md"
+        output_filename = os.path.basename(root_dir.get()) + output_format.get()
 
         # プリセットの保存
         preset_data = {
             'exclude_dirs': exclude_dirs.get(),
             'include_extensions': selected_extensions,
             'output_dir': output_dir.get(),
-            'target_files': target_files.get()
+            'target_files': target_files.get(),
+            'output_format': output_format.get()  # 出力形式も保存
         }
         preset_manager.save_preset(root_dir.get(), preset_data)
 
@@ -106,7 +114,8 @@ def main():
         except Exception as e:
             messagebox.showerror("エラー", f"サマリーの生成中にエラーが発生しました：\n{str(e)}")
 
-    ttk.Button(window, text="サマリーを生成", command=generate_summary_callback).grid(row=5, column=1, pady=20)
+    ttk.Button(window, text="サマリーを生成", command=generate_summary_callback).grid(row=6, column=1, pady=20)
+
 
     window.mainloop()
 
