@@ -25,7 +25,7 @@ DEFAULT_OUTPUT_FILENAME = "summary.md"
 
 # デフォルトのターゲットファイル
 
-DEFAULT_TARGET_FILES = ["README.md","Dockerfile","docker-compose.yml","requirements.txt","package.json","svelte.config.js","tsconfig.json","*.config.ts" ]
+DEFAULT_TARGET_FILES = ["README.md","Dockerfile","docker-compose.yml","requirements.txt","package.json","svelte.config.js","tsconfig.json","*.config.ts","manifest.json" ]
 
 # サポートするファイル拡張子
 SUPPORTED_EXTENSIONS = [
