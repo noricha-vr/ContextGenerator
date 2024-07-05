@@ -15,13 +15,15 @@ def main():
     window.geometry("820x450")
 
     preset_manager = PresetManager()
+    # 起動時のディレクトリを取得
+    initial_dir = os.getcwd()
 
     def pick_root_dir():
-        initial_dir = os.path.expanduser("~")  # ユーザーのホームディレクトリを取得
-        result = filedialog.askdirectory(initialdir=initial_dir)
+        result = filedialog.askdirectory(initialdir=root_dir.get())
         if result:
             root_dir.set(result)
             load_preset(result)
+
 
     def pick_output_dir():
         initial_dir = os.path.expanduser("~")  # ユーザーのホームディレクトリを取得
@@ -39,7 +41,7 @@ def main():
             for ext, var in extension_vars.items():
                 var.set(ext in preset_extensions)
 
-    root_dir = tk.StringVar()
+    root_dir = tk.StringVar(value=initial_dir)
     exclude_dirs = tk.StringVar(value=", ".join(EXCLUDE_DIRS))
     output_dir = tk.StringVar(value=DEFAULT_OUTPUT_DIR)
     output_format = tk.StringVar(value=".md")  # デフォルト値を .md に設定
