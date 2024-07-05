@@ -1,6 +1,7 @@
 import os
 import subprocess
 import fnmatch
+from collections import defaultdict
 
 
 def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions: list[str], output_file: str,
@@ -31,6 +32,7 @@ def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions:
     exclude_pattern = "|".join(exclude_dirs + ["__pycache__", "*.pyc"])
     tree_output = subprocess.check_output(
         ["tree", "-N", "-L", "4", "-I", exclude_pattern, root_dir], encoding='utf-8')
+
     # ファイル情報を取得
     file_paths = []
     for root, dirs, files in os.walk(root_dir):
@@ -51,7 +53,12 @@ def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions:
             # 拡張子のチェックまたはターゲットファイルのチェック
             if any(file.endswith(ext) for ext in include_extensions) or file in target_files:
                 file_paths.append(file_path)
+
     print(f'Selected files: {file_paths}')
+
+    # ファイル統計情報の初期化
+    file_stats = defaultdict(lambda: {'count': 0, 'lines': 0})
+
     # マークダウン形式で出力
     output_content = f"""
 ## ディレクトリ構造
@@ -64,9 +71,13 @@ def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions:
 
     for file_path in file_paths:
         # ファイルを開いて中身を取得
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             try:
                 file_content = f.read()
+                # ファイル統計情報の更新
+                extension = os.path.splitext(file_path)[1]
+                file_stats[extension]['count'] += 1
+                file_stats[extension]['lines'] += file_content.count('\n') + 1
             except UnicodeDecodeError:
                 print(f"UnicodeDecodeError: {file_path}")
                 continue
@@ -76,9 +87,12 @@ def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions:
 {file_content.replace("```", "``````")}
 ```
 """
+
     # ファイル出力
-    with open(os.path.join(output_dir, output_file), 'w') as f:
+    with open(os.path.join(output_dir, output_file), 'w', encoding='utf-8') as f:
         f.write(output_content)
+
+    return file_stats
 
 
 if __name__ == "__main__":
@@ -90,6 +104,9 @@ if __name__ == "__main__":
     output_dir = "~/Desktop"  # 出力フォルダを指定
     target_files = ["README.md", "requirements.txt",
                     "config.yaml", "Dockerfile"]  # 取得対象のファイル名を指定
-    generate_summary(root_dir, exclude_dirs, include_extensions,
-                     output_file, output_dir, target_files)
+    file_stats = generate_summary(root_dir, exclude_dirs, include_extensions,
+                                  output_file, output_dir, target_files)
     print("Summary generated successfully!")
+    print("File statistics:")
+    for ext, stats in file_stats.items():
+        print(f"{ext}: {stats['count']} files, {stats['lines']} lines")
