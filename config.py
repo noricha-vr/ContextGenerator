@@ -1,6 +1,5 @@
-# config.py
 
-import os
+from pathlib import Path
 
 # 除外するディレクトリのリスト
 EXCLUDE_DIRS = [
@@ -35,8 +34,7 @@ EXCLUDE_FILES = [
 DEFAULT_OUTPUT_FILENAME = "summary.md"
 
 # デフォルトのターゲットファイル
-
-DEFAULT_TARGET_FILES = ["README.md","Dockerfile","docker-compose.yml","requirements.txt","package.json","svelte.config.js","tsconfig.json","*.config.ts","manifest.json" ]
+DEFAULT_TARGET_FILES = ["README.md","Dockerfile","docker-compose.yml","requirements.txt","package.json","svelte.config.js","tsconfig.json","*.config.ts","manifest.json"]
 
 # サポートするファイル拡張子
 SUPPORTED_EXTENSIONS = [
@@ -48,4 +46,4 @@ SUPPORTED_EXTENSIONS = [
 ]
 
 # デフォルトの出力ディレクトリ
-DEFAULT_OUTPUT_DIR = os.path.expanduser("~/Desktop")
+DEFAULT_OUTPUT_DIR = Path.home() / "Desktop"
