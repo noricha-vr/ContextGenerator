@@ -9,6 +9,7 @@ from config import (
 )
 from main import generate_summary
 
+
 def main():
     window = tk.Tk()
     window.title("Context Generator")
@@ -24,10 +25,8 @@ def main():
             root_dir.set(result)
             load_preset(result)
 
-
     def pick_output_dir():
-        initial_dir = os.path.expanduser("~")  # ユーザーのホームディレクトリを取得
-        result = filedialog.askdirectory(initialdir=initial_dir)
+        result = filedialog.askdirectory(initialdir=output_dir.get())
         if result:
             output_dir.set(result)
 
@@ -40,6 +39,7 @@ def main():
             preset_extensions = preset_data.get('include_extensions', [])
             for ext, var in extension_vars.items():
                 var.set(ext in preset_extensions)
+            output_format.set(preset_data.get('output_format', output_format.get()))
 
     root_dir = tk.StringVar(value=initial_dir)
     exclude_dirs = tk.StringVar(value=", ".join(EXCLUDE_DIRS))
@@ -60,7 +60,8 @@ def main():
     extension_frame = ttk.Frame(window)
     extension_frame.grid(row=2, column=1, sticky=tk.W, padx=10, pady=5)
     for i, ext in enumerate(SUPPORTED_EXTENSIONS):
-        ttk.Checkbutton(extension_frame, text=ext, variable=extension_vars[ext]).grid(row=i//5, column=i%5, sticky=tk.W, padx=5, pady=2)
+        ttk.Checkbutton(extension_frame, text=ext, variable=extension_vars[ext]).grid(row=i // 5, column=i % 5,
+                                                                                      sticky=tk.W, padx=5, pady=2)
 
     ttk.Label(window, text="出力ディレクトリ:").grid(row=3, column=0, sticky=tk.W, padx=10, pady=5)
     ttk.Entry(window, textvariable=output_dir, width=50, state="readonly").grid(row=3, column=1, padx=10, pady=5)
@@ -103,7 +104,7 @@ def main():
         preset_manager.save_preset(root_dir.get(), preset_data)
 
         try:
-            generate_summary(
+            file_stats = generate_summary(
                 root_dir.get(),
                 [dir.strip() for dir in exclude_dirs.get().split(",")],
                 selected_extensions,
@@ -111,15 +112,26 @@ def main():
                 output_dir.get(),
                 [file.strip() for file in target_files.get().split(",")]
             )
-            messagebox.showinfo("成功", f"サマリーが生成されました。\n保存先: {os.path.join(output_dir.get(), output_filename)}")
+
+            # ファイル統計情報を整形
+            stats_message = ""
+            for ext, data in file_stats.items():
+                stats_message += f"{ext}: {data['count']}個, {data['lines']}行\n"
+
+            # 成功メッセージとファイル統計情報を表示
+            messagebox.showinfo("成功",
+                                f"サマリーが生成されました。\n\n"
+                                f"{stats_message}\n"
+                                f"保存先: {os.path.join(output_dir.get(), output_filename)}"
+                                )
             open_output_directory(output_dir.get())
         except Exception as e:
             messagebox.showerror("エラー", f"サマリーの生成中にエラーが発生しました：\n{str(e)}")
 
     ttk.Button(window, text="サマリーを生成", command=generate_summary_callback).grid(row=6, column=1, pady=20)
 
-
     window.mainloop()
+
 
 if __name__ == "__main__":
     main()
