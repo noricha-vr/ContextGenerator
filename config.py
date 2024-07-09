@@ -20,6 +20,17 @@ EXCLUDE_DIRS = [
     ".DS_Store", "migrations", ".gradle","locale","*secret*",
 ]
 
+
+EXCLUDE_FILES = [
+    "*.pyc", "*.pyo", "__pycache__", ".DS_Store", "Thumbs.db",
+    "*.swp", "*.swo", "*~", ".vscode", ".idea",
+    "build", "dist", "*.egg-info", "*.log", "*.bak",
+    ".cache", "venv", "env", ".env", "node_modules",
+    ".git", ".svn", ".hg", "local_settings.py",
+    "*.pem", "*.key", "*.sqlite3", "*.db",
+    "*.min.js", "*.min.css"
+]
+
 # デフォルトの出力ファイル名
 DEFAULT_OUTPUT_FILENAME = "summary.md"
 

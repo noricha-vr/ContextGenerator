@@ -2,6 +2,7 @@ import os
 import subprocess
 import fnmatch
 from collections import defaultdict
+from config import EXCLUDE_FILES
 
 
 def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions: list[str], output_file: str,
@@ -17,16 +18,6 @@ def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions:
         output_dir: 出力フォルダ
         target_files: 取得対象のファイル名リスト
     """
-
-    exclude_files = [
-        "*.pyc", "*.pyo", "__pycache__", ".DS_Store", "Thumbs.db",
-        "*.swp", "*.swo", "*~", ".vscode", ".idea",
-        "build", "dist", "*.egg-info", "*.log", "*.bak",
-        ".cache", "venv", "env", ".env", "node_modules",
-        ".git", ".svn", ".hg", "local_settings.py",
-        "*.pem", "*.key", "*.sqlite3", "*.db",
-        "*.min.js", "*.min.css"
-    ]
 
     # ディレクトリ構造を tree コマンドで取得
     exclude_pattern = "|".join(exclude_dirs + ["__pycache__", "*.pyc"])
@@ -46,7 +37,7 @@ def generate_summary(root_dir: str, exclude_dirs: list[str], include_extensions:
             file_path = os.path.join(root, file)
 
             # 除外ファイルのチェック
-            if any(fnmatch.fnmatch(file, pattern) for pattern in exclude_files):
+            if any(fnmatch.fnmatch(file, pattern) for pattern in EXCLUDE_FILES):
                 print(f"Excluded: {file_path}")
                 continue
 
