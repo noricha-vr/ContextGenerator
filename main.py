@@ -35,6 +35,35 @@ def collect_files(root_dir: Path, exclude_dirs: List[str], include_extensions: L
     logger.info(f'Collected {len(file_paths)} files')
     return file_paths
 
+
+def get_directory_structure(root_dir: Path, exclude_dirs: List[str]) -> str:
+    """
+    ディレクトリ構造を取得する関数
+
+    Args:
+        root_dir: ルートディレクトリ
+        exclude_dirs: 除外するディレクトリリスト
+
+    Returns:
+        str: ディレクトリ構造の文字列表現
+    """
+    if is_windows():
+        logger.warning("Windows環境では tree コマンドを使用しません。")
+        return ""
+
+    exclude_pattern = "|".join(exclude_dirs + ["__pycache__", "*.pyc"])
+    try:
+        tree_output = subprocess.check_output(
+            ["tree", "-N", "-L", "4", "-I", exclude_pattern, str(root_dir)],
+            encoding='utf-8'
+        )
+        return tree_output
+    except subprocess.CalledProcessError as e:
+        logger.error(f"tree コマンドの実行中にエラーが発生しました treeをインストールしてください。: {e}")
+        return ""
+
+
+
 def read_file_content(file_path: Path) -> str:
     """
     ファイルの内容を読み取る
@@ -99,6 +128,7 @@ def generate_markdown_output(root_dir: Path, file_paths: List[Path], tree_output
 """
     return output_content
 
+
 def generate_summary(root_dir: Path, exclude_dirs: List[str], include_extensions: List[str], output_file: str,
                      output_dir: Path, target_files: List[str]) -> Tuple[Dict[str, Dict[str, int]], str]:
     """
@@ -115,10 +145,9 @@ def generate_summary(root_dir: Path, exclude_dirs: List[str], include_extensions
     Returns:
         Tuple[Dict[str, Dict[str, int]], str]: ファイル統計情報と合計文字数
     """
-    # ディレクトリ構造を tree コマンドで取得
-    exclude_pattern = "|".join(exclude_dirs + ["__pycache__", "*.pyc"])
-    tree_output = subprocess.check_output(
-        ["tree", "-N", "-L", "4", "-I", exclude_pattern, str(root_dir)], encoding='utf-8')
+
+    # ディレクトリ構造を取得
+    tree_output = get_directory_structure(root_dir, exclude_dirs)
 
     # ファイル収集
     file_paths = collect_files(root_dir, exclude_dirs, include_extensions, target_files)
