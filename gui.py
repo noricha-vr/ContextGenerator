@@ -9,7 +9,6 @@ from config import (
 )
 from main import generate_summary
 
-
 def main():
     window = tk.Tk()
     window.title("Context Generator")
@@ -48,6 +47,10 @@ def main():
     target_files = tk.StringVar(value=", ".join(DEFAULT_TARGET_FILES))
 
     extension_vars = {ext: tk.BooleanVar(value=ext in [".md", ".py"]) for ext in SUPPORTED_EXTENSIONS}
+
+    # 起動時にJSONファイルをロード
+    if (initial_dir / "summary.config.json").exists():
+        load_preset(initial_dir)
 
     ttk.Label(window, text="ルートディレクトリ:").grid(row=0, column=0, sticky=tk.W, padx=10, pady=5)
     ttk.Entry(window, textvariable=root_dir, width=50, state="readonly").grid(row=0, column=1, padx=10, pady=5)
@@ -132,7 +135,6 @@ def main():
     ttk.Button(window, text="サマリーを生成", command=generate_summary_callback).grid(row=6, column=1, pady=20)
 
     window.mainloop()
-
 
 if __name__ == "__main__":
     main()

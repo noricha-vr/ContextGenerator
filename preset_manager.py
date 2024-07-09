@@ -13,6 +13,12 @@ class PresetManager:
     def load_preset(self, root_directory: Path):
         config_path = root_directory / self.config_filename
         if config_path.exists():
+            # add debug log here
+            print(f"Preset loaded from {config_path}")
+            text = config_path.read_text()
+            print(f"Loaded text: {text}")
+            json_data = json.loads(text)
+            print(f"Loaded JSON: {json_data}")
             return json.loads(config_path.read_text())
         else:
             print(f"Preset file not found at {config_path}")
