@@ -2,12 +2,17 @@ import tkinter as tk
 from tkinter import filedialog, ttk, messagebox
 from pathlib import Path
 import subprocess
+
+from logging_config import setup_logging,get_logger
 from preset_manager import PresetManager
 from config import (
     EXCLUDE_DIRS, DEFAULT_TARGET_FILES,
     SUPPORTED_EXTENSIONS, DEFAULT_OUTPUT_DIR
 )
 from main import generate_summary
+
+setup_logging()
+logger = get_logger(__name__)
 
 def main():
     window = tk.Tk()
