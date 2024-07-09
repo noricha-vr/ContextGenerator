@@ -146,8 +146,8 @@ def generate_markdown_output(root_dir: Path, file_paths: List[Path], directory_s
     file_content = '## ファイル一覧\n\n'
     for file_path in file_paths:
         content = read_file_content(file_path)
-        # python で始まるコマンドを python に変換(Claude Projectエラー対策)
-        content = re.sub(r'python', 'python', content, flags=re.MULTILINE)
+        # python -m で始まるコマンドを python に変換(Claude Projectエラー対策)
+        content = re.sub(r'python -m', 'python', content, flags=re.MULTILINE)
         # コードブロックの開始記号 ``` がマークダウンの区切りとして誤認識されるのを防ぐため、
         content = re.sub(r'^```', '``````', content, flags=re.MULTILINE)
         file_content += f"{file_path.relative_to(root_dir)}\n\n```{file_path.suffix}\n{content}\n```\n\n"
