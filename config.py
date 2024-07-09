@@ -27,7 +27,7 @@ EXCLUDE_FILES = [
     ".cache", "venv", "env", ".env", "node_modules",
     ".git", ".svn", ".hg", "local_settings.py",
     "*.pem", "*.key", "*.sqlite3", "*.db",
-    "*.min.js", "*.min.css"
+    "*.min.js", "*.min.css","summary.config.json",
 ]
 
 # デフォルトの出力ファイル名
