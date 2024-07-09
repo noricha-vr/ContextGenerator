@@ -1,4 +1,6 @@
 import platform
+import re
+
 from config import EXCLUDE_FILES
 import fnmatch
 from collections import defaultdict
@@ -112,22 +114,20 @@ def generate_markdown_output(root_dir: Path, file_paths: List[Path], tree_output
     Returns:
         str: マークダウン形式の出力
     """
-    output_content = f"""
-## ディレクトリ構造
-
+    directory_structure = ''
+    if tree_output:
+        directory_structure = f"""## ディレクトリ構造
+        
 {tree_output}
-
-## ファイル一覧
-
 """
+    file_content = '## ファイル一覧\n\n'
     for file_path in file_paths:
-        file_content = read_file_content(file_path)
-        output_content += f"""
-```{file_path.relative_to(root_dir)}
-{file_content.replace("```", "``````")}
-"""
-    return output_content
+        content = read_file_content(file_path)
+        # コードブロックの開始記号 ``` がマークダウンの区切りとして誤認識されるのを防ぐため、
+        content = re.sub(r'^```', '``````', content, flags=re.MULTILINE)
+        file_content += f"{file_path.relative_to(root_dir)}\n\n```{file_path.suffix}\n{content}\n```\n\n"
 
+    return f"{directory_structure}{file_content}"
 
 def generate_summary(root_dir: Path, exclude_dirs: List[str], include_extensions: List[str], output_file: str,
                      output_dir: Path, target_files: List[str]) -> Tuple[Dict[str, Dict[str, int]], str]:
