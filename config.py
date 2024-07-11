@@ -14,7 +14,7 @@ EXCLUDE_DIRS = [
     # ビルド・キャッシュディレクトリ
     "build", "dist", ".cache", ".coverage",
     # フレームワーク固有
-    ".serverless", ".terraform", ".stack-work", ".next", ".nuxt",
+    ".serverless", ".terraform", ".stack-work", ".next", ".nuxt",".svelte-kit",
     # その他
     ".DS_Store", "migrations", ".gradle","locale","*secret*",
 ]
