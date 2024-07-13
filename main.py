@@ -205,5 +205,3 @@ if __name__ == '__main__':
                                   output_file, output_dir, target_files)
     print("Summary generated successfully!")
     print("File statistics:")
-    for ext, stats in file_stats.items():
-        print(f"{ext}: {stats['count']} files, {stats['chars']} characters")
