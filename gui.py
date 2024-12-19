@@ -44,12 +44,14 @@ def main():
             for ext, var in extension_vars.items():
                 var.set(ext in preset_extensions)
             output_format.set(preset_data.get('output_format', output_format.get()))
+            copy_to_clipboard.set(preset_data.get('copy_to_clipboard', False))
 
     root_dir = tk.StringVar(value=str(initial_dir))
     exclude_dirs = tk.StringVar(value=", ".join(EXCLUDE_DIRS))
     output_dir = tk.StringVar(value=str(DEFAULT_OUTPUT_DIR))
     output_format = tk.StringVar(value=".md")  # デフォルト値を .md に設定
     target_files = tk.StringVar(value=", ".join(DEFAULT_TARGET_FILES))
+    copy_to_clipboard = tk.BooleanVar(value=False)
 
     extension_vars = {ext: tk.BooleanVar(value=ext in [".md", ".py"]) for ext in SUPPORTED_EXTENSIONS}
 
@@ -84,6 +86,10 @@ def main():
     ttk.Radiobutton(format_frame, text=".md", variable=output_format, value=".md").pack(side=tk.LEFT, padx=5)
     ttk.Radiobutton(format_frame, text=".txt", variable=output_format, value=".txt").pack(side=tk.LEFT, padx=5)
 
+    # クリップボード設定を追加
+    ttk.Checkbutton(format_frame, text="クリップボードにコピー", 
+                    variable=copy_to_clipboard).pack(side=tk.LEFT, padx=20)
+
     def open_output_directory(path: Path):
         if path.exists():
             if Path.cwd().drive:  # Windows
@@ -107,7 +113,8 @@ def main():
             'include_extensions': selected_extensions,
             'output_dir': output_dir.get(),
             'target_files': target_files.get(),
-            'output_format': output_format.get()  # 出力形式も保存
+            'output_format': output_format.get(),
+            'copy_to_clipboard': copy_to_clipboard.get()  # クリップボード設定を追加
         }
         preset_manager.save_preset(Path(root_dir.get()), preset_data)
 
@@ -134,6 +141,21 @@ def main():
                                 f"保存先: {Path(output_dir.get()) / output_filename}"
                                 )
             open_output_directory(Path(output_dir.get()))
+
+            # 成功メッセージの表示後に追加
+            if copy_to_clipboard.get():
+                try:
+                    output_path = Path(output_dir.get()) / output_filename
+                    content = output_path.read_text(encoding='utf-8')
+                    window.clipboard_clear()
+                    window.clipboard_append(content)
+                    window.update()  # クリップボードの更新を確実にする
+                    logger.info("Summary content copied to clipboard")
+                    messagebox.showinfo("クリップボード", "サマリーの内容をクリップボードにコピーしました。")
+                except Exception as e:
+                    logger.error(f"Failed to copy to clipboard: {e}")
+                    messagebox.showerror("エラー", 
+                                       f"クリップボードへのコピー中にエラーが発生しました：\n{str(e)}")
         except Exception as e:
             messagebox.showerror("エラー", f"サマリーの生成中にエラーが発生しました：\n{str(e)}")
 
