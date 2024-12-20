@@ -85,10 +85,8 @@ def main():
     format_frame.grid(row=5, column=1, sticky=tk.W, padx=10, pady=5)
     ttk.Radiobutton(format_frame, text=".md", variable=output_format, value=".md").pack(side=tk.LEFT, padx=5)
     ttk.Radiobutton(format_frame, text=".txt", variable=output_format, value=".txt").pack(side=tk.LEFT, padx=5)
-
-    # クリップボード設定を追加
-    ttk.Checkbutton(format_frame, text="クリップボードにコピー", 
-                    variable=copy_to_clipboard).pack(side=tk.LEFT, padx=20)
+    ttk.Radiobutton(format_frame, text="クリップボードにコピー", 
+                    variable=output_format, value="clipboard").pack(side=tk.LEFT, padx=5)
 
     def open_output_directory(path: Path):
         if path.exists():
@@ -113,8 +111,7 @@ def main():
             'include_extensions': selected_extensions,
             'output_dir': output_dir.get(),
             'target_files': target_files.get(),
-            'output_format': output_format.get(),
-            'copy_to_clipboard': copy_to_clipboard.get()  # クリップボード設定を追加
+            'output_format': output_format.get()
         }
         preset_manager.save_preset(Path(root_dir.get()), preset_data)
 
@@ -123,7 +120,7 @@ def main():
                 Path(root_dir.get()),
                 [dir.strip() for dir in exclude_dirs.get().split(",")],
                 selected_extensions,
-                output_filename,
+                output_filename if output_format.get() != "clipboard" else "temp.md",
                 Path(output_dir.get()),
                 [file.strip() for file in target_files.get().split(",")]
             )
@@ -133,29 +130,34 @@ def main():
             for ext, data in file_stats.items():
                 stats_message += f"{ext}: {data['count']}個, {data['chars']}文字\n"
 
-            # 成功メッセージとファイル統計情報を表示
-            messagebox.showinfo("成功",
+            # クリップボードにコピーする場合
+            if output_format.get() == "clipboard":
+                try:
+                    output_path = Path(output_dir.get()) / "temp.md"
+                    content = output_path.read_text(encoding='utf-8')
+                    window.clipboard_clear()
+                    window.clipboard_append(content)
+                    window.update()  # クリップボードの更新を確実にする
+                    output_path.unlink()  # 一時ファイルを削除
+                    logger.info("Summary content copied to clipboard")
+                    messagebox.showinfo("成功",
+                                    f"サマリーがクリップボードにコピーされました。\n\n"
+                                    f"{stats_message}\n"
+                                    f"合計文字数: {total_chars}文字")
+                except Exception as e:
+                    logger.error(f"Failed to copy to clipboard: {e}")
+                    messagebox.showerror("エラー", 
+                                    f"クリップボードへのコピー中にエラーが発生しました：\n{str(e)}")
+            else:
+                # 成功メッセージとファイル統計情報を表示
+                messagebox.showinfo("成功",
                                 f"サマリーが生成されました。\n\n"
                                 f"{stats_message}\n"
                                 f"合計文字数: {total_chars}文字\n\n"
                                 f"保存先: {Path(output_dir.get()) / output_filename}"
                                 )
-            open_output_directory(Path(output_dir.get()))
+                open_output_directory(Path(output_dir.get()))
 
-            # 成功メッセージの表示後に追加
-            if copy_to_clipboard.get():
-                try:
-                    output_path = Path(output_dir.get()) / output_filename
-                    content = output_path.read_text(encoding='utf-8')
-                    window.clipboard_clear()
-                    window.clipboard_append(content)
-                    window.update()  # クリップボードの更新を確実にする
-                    logger.info("Summary content copied to clipboard")
-                    messagebox.showinfo("クリップボード", "サマリーの内容をクリップボードにコピーしました。")
-                except Exception as e:
-                    logger.error(f"Failed to copy to clipboard: {e}")
-                    messagebox.showerror("エラー", 
-                                       f"クリップボードへのコピー中にエラーが発生しました：\n{str(e)}")
         except Exception as e:
             messagebox.showerror("エラー", f"サマリーの生成中にエラーが発生しました：\n{str(e)}")
 
